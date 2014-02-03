@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="en">
+<head>
+<title>jQuery Hello World</title>
+<script type="text/javascript" src="/files/jquery-2.0.3.min.js"></script>
+<style>
+#main_window
+{
+    color:black;
+    background-color:#808080;
+    width:100%;
+    height:100%;
+    margin:0px;
+}
+html, body
+{
+    margin:0px;
+    border:0px;
+    padding:0px;
+    width:100%;
+    height:100%;
+}
+</style>
+</head>
+<body>
+<script type="text/javascript">
+    /*
+     * topo - topology.  This is the latest
+     *          topology received from the
+     *          server.  This should be used
+     *          in all requests for display
+     *          modifications and updates.
+     */
+    var topo = null
+    var sync_attempts = 20
+    var primary_display = null
+
+    function log_debug(msg) {
+        console.log("DEBUG: " + msg)
+    }
+
+    function log_info(msg) {
+        console.log(" INFO: " + msg)
+    }
+
+    function log_error(msg) {
+        console.log("ERROR: " + msg)
+    }
+
+    function urlget(url, cback) {
+        var settings = {
+                type: "GET",
+                cache: false,
+                dataType: "json"};
+        var jqxhr = $.ajax(url, settings)
+                .done(function(data, tstat, jqXHR) {
+                    if ( tstat === "success" ) {
+                        log_debug("received data:")
+                        cback(data, tstat)
+                    } else {
+                        log_error("Could not get data for url ("
+                                    + url + ")")
+                        cback(null, tstat)
+                    }
+                })
+    }
+
+    function urlpost(url, cback) {
+        var settings = {
+                type: "POST",
+                cache: false};
+        var jqxhr = $.ajax(url, settings)
+                .done(function(data, tstat, jqXHR) {
+                    if ( tstat === "success" ) {
+                        log_debug("received data:")
+                        if (cback != null) {
+                            cback(data, tstat)
+                        }
+                    } else {
+                        log_error("Could not post data for url ("
+                                    + url + ")")
+                        if (cback != null) {
+                            cback(null, tstat)
+                        }
+                    }
+                })
+    }
+
+    function get_topology(cback) {
+        urlget("/topology", function (topology, tstat) {
+            if (tstat === "success") {
+                topo = topology
+                dump_topology()
+                if (cback != null) {
+                    cback(topo)
+                }
+            }
+        });
+    }
+
+    function mouse_move(x, y) {
+        urlpost("/mouse_input/" + primary_display.disp_id + "/" + x + "/" + y, null);
+    }
+
+    function modify_display_complete() {
+    }
+
+    function set_display_geometry(disp_id, width, height) {
+        urlpost("/set_display_geometry/" + disp_id + "/" + width + "/" + height,
+                    function (data, tstat) {
+                        get_topology()
+                    });
+    }
+
+    function disable_display(disp_id) {
+        urlpost("/enable_display/" + disp_id + "/0")
+    }
+
+    function initialize() {
+        /*
+         * Get the current topology.
+         * Disable all displays except for the first.
+         * Try to set display 0 width/height to match our window.
+         * Wait for all changes to settle, then begin updates.
+         */
+        $(window).resize(function(eventObject) {
+                resize(eventObject)
+            });
+        /*
+        $(window).mousemove(function(eventObject) {
+                mouse_move(eventObject.pageX, eventObject.pageY)
+            });
+        */
+        get_topology(topology_ready)
+    }
+
+    function resize(eventObject) {
+        log_debug("Resizing:")
+        get_topology(topology_ready)
+    }
+
+    function topology_ready(topo) {
+        primary_display = null
+        for (var i=0; i < topo.display_groups.length; i++)
+        {
+            disp_group = topo.display_groups[i]
+            for (var j=0; j < disp_group.displays.length; j++)
+            {
+                display = disp_group.displays[j]
+                if (display.primary) {
+                    primary_display = display
+                }
+                if (!display.primary && display.enabled) {
+                    disable_display(display.disp_id)
+                }
+            }
+        }
+        if (primary_display != null)
+        {
+            if ($(window).width() != primary_display.width ||
+                $(window).height() != primary_display.height)
+            {
+                if ( sync_attempts > 0 )
+                {
+                    set_display_geometry(primary_display.disp_id,
+                                         $(window).width(),
+                                         $(window).height())
+                    sync_attempts--
+                }
+            } else {
+                sync_attempts = 20
+            }
+        }
+        sync_attempts = 20
+    }
+
+    function get_update() {
+        urlget("/update", function (imgdata, tstat) {
+            if (tstat === "success") {
+                dump_topology()
+                if (cback != null) {
+                    cback(topo)
+                }
+            }
+        });
+
+    function dump_topology() {
+        log_info("Topology instance (" + topo.tid + ")")
+        for (var i=0; i < topo.display_groups.length; i++)
+        {
+            log_info("Group (" + i + ")")
+            disp_group = topo.display_groups[i]
+            for (var j=0; j < disp_group.displays.length; j++)
+            {
+                display = disp_group.displays[j]
+                enabled_str = "Disabled"
+                if (display.enabled > 0) {
+                    enabled_str = "Enabled";
+                }
+                log_info("  -- Display (" + display.name + ")("
+                        + j + ")" + "(" + display.width + "x" +
+                        display.height + ") " + enabled_str)
+            }
+        }
+    }
+
+    $(document).ready(function(){
+         console.log("log message test...");
+         initialize();
+    });
+
+    function timer_func() {
+        console.log("In the timer...");
+    }
+    // interval = setInterval(timer_func, 1000);
+</script>
+<div id="main_window" bgcolor="#808080">
+</div>
+</body>
+</html>

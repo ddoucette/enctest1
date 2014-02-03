@@ -22,6 +22,22 @@
 #define mLOG_DEBUG(fmt, ...) do{}while(0)
 #endif
 
+#define mSLOG_ERROR(fmt, ...) \
+        Logger::GetInstance()->log(Logger::LVL_ERROR, \
+                __FILE__, __LINE__, NULL, (fmt), ##__VA_ARGS__)
+
+#define mSLOG_INFO(fmt, ...) \
+        Logger::GetInstance()->log(Logger::LVL_INFO, \
+                __FILE__, __LINE__, NULL, (fmt), ##__VA_ARGS__)
+
+#ifdef DEBUG
+#define mSLOG_DEBUG(fmt, ...) \
+        Logger::GetInstance()->log(Logger::LVL_DEBUG, \
+                __FILE__, __LINE__, NULL, (fmt), ##__VA_ARGS__)
+#else
+#define mSLOG_DEBUG(fmt, ...) do{}while(0)
+#endif
+
 
 class Logger
 {

@@ -1,20 +1,21 @@
 
-SOURCES=main.cpp ../common/logger.cpp
+SOURCES=main.cpp ../common/logger.cpp ../common/memory.cpp ../encoder/FrameBuffer.cpp
 OBJECTS=$(SOURCES:.cpp=.o)
 
-INCLUDES=-I../common
-CXX=clang++
-CFLAGS=-c -Wall -Werror -g -O2
-LDFLAGS=
+INCLUDES=-I../common -I../encoder -I/home/ddoucette/local/include
+#CXX=clang++
+CXX=g++
+CFLAGS=-c -Wall -Werror -g -O2 -DDEBUG -std=c++0x
+LDFLAGS=-lboost_date_time -L/home/ddoucette/local/lib
 EXECUTABLE=unittest
 
 all: $(SOURCES) $(EXECUTABLE)
 	
 $(EXECUTABLE): $(OBJECTS)
-	$(CXX) $(LDFLAGS) $(OBJECTS) -o $@
+	$(CXX) $(OBJECTS) $(LDFLAGS) -o $@
 
 .cpp.o:
 	$(CXX) $(CFLAGS) $(INCLUDES) $< -o $@
 
 clean:
-	rm -Rf *.o $(EXECUTABLE) *~
+	rm -Rf *.o ../common/*.o ../encoder/*.o $(EXECUTABLE) *~

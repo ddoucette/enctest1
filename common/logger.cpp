@@ -19,6 +19,16 @@ void Logger::log(   uint32_t level,
                     const char* fmt,
                     ...)
 {
+    if (level > this->level)
+        return;
+
+    ptime t(microsec_clock::local_time());
+    std::cerr << to_simple_string(t);
+    if (obj != NULL)
+    {
+        std::cerr << " <" << obj->get_name() << ">";
+    }
+    std::cerr << " " << file << ":" << line << " ";
     va_list ap;
     std::cerr << file << ":" << line << " ";
     va_start(ap, fmt);
