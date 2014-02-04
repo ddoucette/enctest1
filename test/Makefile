@@ -1,5 +1,6 @@
 
-SOURCES=main.cpp ../common/logger.cpp ../common/memory.cpp ../encoder/FrameBuffer.cpp
+SOURCES=main.cpp ../common/logger.cpp ../common/memory.cpp ../encoder/FrameBuffer.cpp ../common/DataSourceSink.cpp
+
 OBJECTS=$(SOURCES:.cpp=.o)
 
 INCLUDES=-I../common -I../encoder -I/home/ddoucette/local/include

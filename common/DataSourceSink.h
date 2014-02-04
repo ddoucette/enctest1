@@ -76,7 +76,7 @@ class DataSource : public Object, EventReceiver, StatsProvider
         void disconnect(DataReceiver *dsrc);
 
         // Push data through to the data receiver(s)
-        bool send(DataBuffer *dbuf);
+        bool send(std::shared_ptr<DataBuffer> dbuf);
 
         // Status of the data source.  If any attached sink 
         bool is_ready(void);
@@ -84,5 +84,8 @@ class DataSource : public Object, EventReceiver, StatsProvider
     private:
         DataSource(std::string name);
         ~DataSource();
+
+        std::mutex lock;
+        bool in_list(std::shared_ptr<DataReceiver>);
         std::list<std::shared_ptr<DataReceiver>> receivers;
 };

@@ -90,27 +90,71 @@ void DataReceiver::send(std::shared_ptr<DataBuffer> *dbuf)
 bool DataReceiver::is_ready(void)
 {
     std::lock_guard<std::mutex> lck(this->lock);
-    return (queue.size() >= full_threshold);
+    return (queue.size() < full_threshold);
 }
 
-class DataSource : public Object, EventReceiver, StatsProvider
+// DataSource
+
+static std::shared_ptr<DataSource> DataSource::Create(std::name name)
 {
-    public:
-        static std::shared_ptr<DataSource> Create(std::name name);
+    return std::shared_ptr<DataSource>(new DataSource(name));
+}
 
-        // (Dis)connect this source to a data receiver.
-        // Connects this data source as an event receiver as well.
-        bool connect(DataReceiver *dsrc);
-        void disconnect(DataReceiver *dsrc);
+DataSource::DataSource(std::string name) :
+                        Object(name),
+                        StatsProvider(name)
+{
+}
 
-        // Push data through to the data receiver(s)
-        bool send(DataBuffer *dbuf);
+DataSource::~DataSource()
+{
+    while (!receivers.empty())
+        receivers.pop();
+}
 
-        // Status of the data source.  If any attached sink 
-        bool is_ready(void);
+bool DataSource::connect(DataReceiver *dsrc)
+{
+    std::lock_guard<std::mutex> lck(this->lock);
+    assert(!in_list(dsrc));
 
-    private:
-        DataSource(std::string name);
-        ~DataSource();
-        std::list<std::shared_ptr<DataReceiver>> receivers;
-};
+    receivers.push_front(dsrc);
+    
+    // Register to receive events from the data receiver.
+    dsrc.register_event_listener(this);
+    return true;
+}
+
+void DataSource::disconnect(DataReceiver *dsrc)
+{
+    std::lock_guard<std::mutex> lck(this->lock);
+    assert(in_list(dsrc));
+
+    dsrc.unregister_event_listener(this);
+    receivers.remove(dsrc);
+}
+
+bool DataSource::send(std::shared_ptr<DataBuffer> dbuf)
+{
+    std::lock_guard<std::mutex> lck(this->lock);
+    for (std::list<std::shared_ptr<DataReceiver>>::iterator it = receivers.begin();
+         it != receivers.end();
+         it++)
+    {
+        std::shared_ptr<DataReceiver> dsrc = *it;
+        dsrc->send(dbuf);
+    }
+}
+
+bool DataSource::is_ready(void)
+{
+    std::lock_guard<std::mutex> lck(this->lock);
+    for (std::list<std::shared_ptr<DataReceiver>>::iterator it = receivers.begin();
+         it != receivers.end();
+         it++)
+    {
+        std::shared_ptr<DataReceiver> dsrc = *it;
+        if (!dsrc->is_ready())
+            return false;
+    }
+    return true;
+}
