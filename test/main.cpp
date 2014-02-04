@@ -1,14 +1,10 @@
 #include <iostream>
-<<<<<<< HEAD
-#include "logger.h"
-=======
 #include <cassert>
 #include <memory>
 #include "logger.h"
 #include "memory.h"
 #include "notifier.h"
 #include "FrameBuffer.h"
->>>>>>> cc30df8... Progress...
 
 class testclass : public Object
 {

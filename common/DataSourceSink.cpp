@@ -79,7 +79,6 @@ void DataReceiver::send(std::shared_ptr<DataBuffer> *dbuf)
     queue.push(dbuf);
 
     // Stats
-    stat_timestamp();
     stat_increment(STAT_RCV_PKTS, 1);
     stat_increment(STAT_RCV_BYTES, dbuf->get_size());
 
@@ -120,7 +119,7 @@ bool DataSource::connect(DataReceiver *dsrc)
     receivers.push_front(dsrc);
     
     // Register to receive events from the data receiver.
-    dsrc.register_event_listener(this);
+    dsrc.register_event_receiver(this);
     return true;
 }
 

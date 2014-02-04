@@ -52,6 +52,7 @@ class Logger
                     Object* obj,
                     const char* fmt,
                     ... );
+        uint32_t get_nr_messages(void) { return this->nr_messages; };
 
         enum LogLevel
         {
@@ -61,7 +62,12 @@ class Logger
         };
 
     private:
-        Logger() { this->level = LVL_DEBUG; };
+        Logger()
+        {
+            this->level = LVL_DEBUG;
+            this->nr_messages = 0;
+        };
         ~Logger() {};
         uint32_t level;
+        uint32_t nr_messages;
 };

@@ -2,8 +2,11 @@
 #include <iostream>
 #include <stdio.h>
 #include "logger.h"
+#include <boost/date_time/posix_time/posix_time.hpp>
 
 static Logger* g_logger = NULL;
+
+using namespace ::boost::posix_time;
 
 Logger* Logger::GetInstance(void)
 {
@@ -35,4 +38,5 @@ void Logger::log(   uint32_t level,
     vfprintf(stderr, fmt, ap);
     va_end(ap);
     std::cerr << "\n";
+    nr_messages++;
 }

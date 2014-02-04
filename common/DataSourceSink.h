@@ -4,8 +4,8 @@
 #include <queue>
 #include <mutex>
 #include "object.h"
-#include "event.h"
-#include "stats.h"
+#include "Events.h"
+#include "Stats.h"
 
 class DataBuffer
 {
