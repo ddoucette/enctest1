@@ -1,22 +1,35 @@
 
-SOURCES=main.cpp ../common/logger.cpp ../common/memory.cpp ../encoder/FrameBuffer.cpp ../common/DataSourceSink.cpp
+MEM_SOURCES=unittest_mem.cpp    \
+            ../common/logger.cpp    \
+            ../common/memory.cpp    \
+            ../encoder/FrameBuffer.cpp
 
-OBJECTS=$(SOURCES:.cpp=.o)
+EVENT_SOURCES=    unittest_event.cpp    \
+                ../common/logger.cpp    \
+                ../common/memory.cpp    \
+                ../common/Events.cpp
+
+MEM_OBJECTS=$(MEM_SOURCES:.cpp=.o)
+EVENT_OBJECTS=$(EVENT_SOURCES:.cpp=.o)
 
 INCLUDES=-I../common -I../encoder -I/home/ddoucette/local/include
 #CXX=clang++
 CXX=g++
 CFLAGS=-c -Wall -Werror -g -O2 -DDEBUG -std=c++0x
 LDFLAGS=-lboost_date_time -L/home/ddoucette/local/lib
-EXECUTABLE=unittest
+MEM=unittest_mem
+EVENT=unittest_event
 
-all: $(SOURCES) $(EXECUTABLE)
+all: $(MEM_SOURCES) $(MEM) $(EVENT_SOURCES) $(EVENT)
 	
-$(EXECUTABLE): $(OBJECTS)
-	$(CXX) $(OBJECTS) $(LDFLAGS) -o $@
+$(MEM): $(MEM_OBJECTS)
+	$(CXX) $(MEM_OBJECTS) $(LDFLAGS) -o $@
+
+$(EVENT): $(EVENT_OBJECTS)
+	$(CXX) $(EVENT_OBJECTS) $(LDFLAGS) -o $@
 
 .cpp.o:
 	$(CXX) $(CFLAGS) $(INCLUDES) $< -o $@
 
 clean:
-	rm -Rf *.o ../common/*.o ../encoder/*.o $(EXECUTABLE) *~
+	rm -Rf *.o ../common/*.o ../encoder/*.o $(MEM) *~
