@@ -33,7 +33,6 @@ void Logger::log(   uint32_t level,
     }
     std::cerr << " " << file << ":" << line << " ";
     va_list ap;
-    std::cerr << file << ":" << line << " ";
     va_start(ap, fmt);
     vfprintf(stderr, fmt, ap);
     va_end(ap);

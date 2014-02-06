@@ -7,6 +7,7 @@ MEM_SOURCES=unittest_mem.cpp    \
 EVENT_SOURCES=    unittest_event.cpp    \
                 ../common/logger.cpp    \
                 ../common/memory.cpp    \
+                ../common/Benchmarking.cpp    \
                 ../common/Events.cpp
 
 MEM_OBJECTS=$(MEM_SOURCES:.cpp=.o)
