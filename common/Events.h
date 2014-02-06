@@ -25,8 +25,6 @@ class EventSource : public std::enable_shared_from_this<EventSource>
 class EventReceiver
 {
     public:
-        EventReceiver(){};
-        ~EventReceiver(){};
-        void event_rcv( std::shared_ptr<EventSource> esrc,
-                                event_t event) {};
+        virtual void event_rcv( std::shared_ptr<EventSource> esrc,
+                                event_t event)=0;
 };

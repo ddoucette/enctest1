@@ -34,7 +34,7 @@ class TestEventReceiver :
         TestEventReceiver(std::string name) : Object(name){};
         ~TestEventReceiver() {};
 
-        void event_rcv(std::shared_ptr<TestEventSource> src, event_t event)
+        void event_rcv(std::shared_ptr<EventSource> src, event_t event)
         {
             mLOG_INFO("Received event (%u)", event);
             events.push_back(event);
