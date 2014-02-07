@@ -2,36 +2,63 @@
 #include <vector>
 #include <string>
 #include <cstdint>
+#include "object.h"
+
+typedef uint32_t stat_id_t;
 
 class Statistic
 {
     public:
-        Statistic(std::string name, std::string units)
+        Statistic()
         {
-            this->name = name;
-            this->units = units;
+            this->label = "invalid";
+            this->rate_label = "invalid";
             this->val = 0.0;
-        }
+        };
         ~Statistic() {};
 
-        void increment(uint32_t val);
-        void increment(uint64_t val);
-        void increment(float val);
+        void initialize(std::string label, std::string rate_label)
+        {
+            this->label = label;
+            this->rate_label = rate_label;
+            this->val = 0.0;
+        };
 
-        void reset(void);
+        void increment(uint32_t val)
+        {
+            this->val += (double)(val);
+        };
 
-        std::string to_string(void);
+        void increment(uint64_t val)
+        {
+            this->val += (double)(val);
+        };
+
+        void increment(float val)
+        {
+            this->val += (double)(val);
+        };
+
+        void reset(void)
+        {
+            this->val = 0.0;
+        };
+
+        double get_value(void) { return this->val; };
+        std::string get_label(void) { return this->label; };
+        std::string get_rate_label(void) { return this->rate_label; };
 
     private:
-        std::string     name;
-        std::string     units;
+        std::string     label;
+        std::string     rate_label;
         double          val;
 };
 
-class StatsProvider
+class StatsProvider : public Object
 {
     public:
-        StatsProvider(uint32_t nr_stats)
+        StatsProvider(std::string name, uint32_t nr_stats) :
+                      Object(name)
         {
             assert(nr_stats > 0);
             stats.reserve(nr_stats);
@@ -42,20 +69,32 @@ class StatsProvider
         // Register a new statistic.
         // Caller provides the ID to use to access the statistic.
         // IDs are zero-based descriptors.
-        void add_statistic(std::string name, std::units units, stat_id_t sid)
+        void add(stat_id_t sid, std::string label, std::string rate_label)
         {
             assert(sid < stats.capacity());
             Statistic &stat = stats[sid];
-            stat.name = name;
-            stat.units = units;
-            stat.value = 0;
+            stat.initialize(label, rate_label);
         };
 
         // Accumulate stat values
-        void stat_increment(stat_id_t sid, uint32_t val);
-        void stat_increment(stat_id_t sid, uint64_t val);
-        void stat_increment(stat_id_t sid, float val);
+        void increment(stat_id_t sid, uint32_t val)
+        {
+            assert(sid < stats.capacity());
+            stats[sid].increment(val);
+        };
+
+        void increment(stat_id_t sid, uint64_t val)
+        {
+            assert(sid < stats.capacity());
+            stats[sid].increment(val);
+        };
+
+        void increment(stat_id_t sid, float val)
+        {
+            assert(sid < stats.capacity());
+            stats[sid].increment(val);
+        };
 
     private:
-        std::vector<Statistics> stats;
+        std::vector<Statistic> stats;
 };

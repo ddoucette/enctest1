@@ -10,8 +10,16 @@ EVENT_SOURCES=    unittest_event.cpp    \
                 ../common/Benchmarking.cpp    \
                 ../common/Events.cpp
 
+DATA_SOURCES=    unittest_data.cpp    \
+                ../common/logger.cpp    \
+                ../common/memory.cpp    \
+                ../common/Benchmarking.cpp    \
+                ../common/DataSourceSink.cpp    \
+                ../common/Events.cpp
+
 MEM_OBJECTS=$(MEM_SOURCES:.cpp=.o)
 EVENT_OBJECTS=$(EVENT_SOURCES:.cpp=.o)
+DATA_OBJECTS=$(DATA_SOURCES:.cpp=.o)
 
 INCLUDES=-I../common -I../encoder -I/home/ddoucette/local/include
 #CXX=clang++
@@ -20,14 +28,18 @@ CFLAGS=-c -Wall -Werror -g -O2 -DDEBUG -std=c++0x
 LDFLAGS=-lboost_date_time -L/home/ddoucette/local/lib
 MEM=unittest_mem
 EVENT=unittest_event
+DATA=unittest_data
 
-all: $(MEM_SOURCES) $(MEM) $(EVENT_SOURCES) $(EVENT)
+all: $(MEM_SOURCES) $(MEM) $(EVENT_SOURCES) $(EVENT) $(DATA)
 	
 $(MEM): $(MEM_OBJECTS)
 	$(CXX) $(MEM_OBJECTS) $(LDFLAGS) -o $@
 
 $(EVENT): $(EVENT_OBJECTS)
 	$(CXX) $(EVENT_OBJECTS) $(LDFLAGS) -o $@
+
+$(DATA): $(DATA_OBJECTS)
+	$(CXX) $(DATA_OBJECTS) $(LDFLAGS) -o $@
 
 .cpp.o:
 	$(CXX) $(CFLAGS) $(INCLUDES) $< -o $@

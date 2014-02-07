@@ -4,40 +4,14 @@
 #include <cassert>
 #include "memory.h"
 
-std::shared_ptr<DataBuffer> DataBuffer::Create(uint32_t buffer_size)
-{
-    return std::shared_ptr<DataBuffer> dbuf(new DataBuffer(buffer_size));
-}
-
-DataBuffer::DataBuffer(uint32_t buffer_size)
-{
-    this->size = 0;
-    this->buffer_size = buffer_size;
-    this->buffer = (uint8_t*)Memory::Malloc("dbuf", buffer_size);
-}
-
-DataBuffer::~DataBuffer()
-{
-    if (this->buffer != NULL)
-    {
-        Memory::Free(this->buffer);
-        this->buffer = NULL;
-    }
-}
-
-// DataReceiver
-
-std::shared_ptr<DataReceiver> DataReceiver::Create(std::name name)
-{
-    return std::shared_ptr<DataReceiver> drcv(new DataReceiver(name));
-}
-
 DataReceiver::DataReceiver(std::string name) :
                            Object(name),
                            StatsProvider(name)
 {
     this->full_threshold = 0xffffffff;
     this->ready_threshold = 0;
+    StatsProvider::add(STAT_RCV_PKTS, "Packets Received", "Pkts/Sec");
+    StatsProvider::add(STAT_RCV_BITS, "Bits Received", "Bits/Sec");
 }
 
 DataReceiver::~DataReceiver()
@@ -54,35 +28,45 @@ DataReceiver::~DataReceiver()
 
 void DataReceiver::set_full_threshold(uint32_t threshold)
 {
-    std::lock_guard<std::mutex> lck(this->lock);
-    uint32_t old_threshold = this->full_threshold;
+    DataReceiver::Event evt = EVENT_NONE;
+    {
+        std::lock_guard<std::mutex> lck(this->lock);
+        uint32_t old_threshold = this->full_threshold;
 
-    // If our newly set full threshold is less than our
-    // queue size, we need to send out a FULL event.
-    // If changing the threshold here creates more room,
-    // we should send out the READY event.
-    this->full_threshold = threshold;
-    if (this->full_threshold <= queue.size())
-    {
-        trigger_event(EVENT_RCV_FULL);
+        // If our newly set full threshold is less than our
+        // queue size, we need to send out a FULL event.
+        // If changing the threshold here creates more room,
+        // we should send out the READY event.
+        this->full_threshold = threshold;
+        if (this->full_threshold <= queue.size())
+        {
+            evt = EVENT_RCV_FULL;
+        }
+        else if (old_threshold <= queue.size())
+        {
+            evt = EVENT_RCV_READY;
+        }
     }
-    else if (old_threshold <= queue.size())
-    {
-        trigger_event(EVENT_RCV_READY);
-    }
+    if (evt != EVENT_NONE)
+        trigger_event(evt);
 }
 
 void DataReceiver::send(std::shared_ptr<DataBuffer> *dbuf)
 {
-    std::lock_guard<std::mutex> lck(this->lock);
+    DataReceiver::Event evt = EVENT_NONE;
+    {
+        std::lock_guard<std::mutex> lck(this->lock);
 
-    queue.push(dbuf);
+        queue.push(dbuf);
 
-    // Stats
-    stat_increment(STAT_RCV_PKTS, 1);
-    stat_increment(STAT_RCV_BYTES, dbuf->get_size());
+        // Stats
+        StatsProvider::increment(STAT_RCV_PKTS, 1);
+        StatsProvider::increment(STAT_RCV_BITS, dbuf->get_size() * 8);
 
-    if (queue.size() == full_threshold)
+        if (queue.size() == full_threshold)
+            evt = EVENT_RCV_FULL;
+    }
+    if (evt != EVENT_NONE)
         trigger_event(EVENT_RCV_FULL);
 }
 
@@ -93,12 +77,6 @@ bool DataReceiver::is_ready(void)
 }
 
 // DataSource
-
-static std::shared_ptr<DataSource> DataSource::Create(std::name name)
-{
-    return std::shared_ptr<DataSource>(new DataSource(name));
-}
-
 DataSource::DataSource(std::string name) :
                         Object(name),
                         StatsProvider(name)
@@ -142,6 +120,10 @@ bool DataSource::send(std::shared_ptr<DataBuffer> dbuf)
         std::shared_ptr<DataReceiver> dsrc = *it;
         dsrc->send(dbuf);
     }
+}
+
+void DataSource::event_rcv(std::shared_ptr<EventSource> src, event_t event)
+{
 }
 
 bool DataSource::is_ready(void)
