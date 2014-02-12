@@ -1,7 +1,6 @@
 
 #include <cstdint>
 #include <mutex>
-#include <cassert>
 #include <memory>
 #include <list>
 #include <string>
@@ -9,6 +8,8 @@
 #include "logger.h"
 #include "constants.h"
 #include "macros.h"
+#include "iassert.h"
+#include "dbuf.h"
 
 
 #define mMEM_TO_ALLOCATION(mem) \
@@ -34,10 +35,15 @@ class MemoryManager : public Memory, Object
         void free(void *mem);
         uint32_t nr_allocations(void) { return allocations.size(); };
         void check_allocations(void);
+
+        // DBuf specific allocations
+        void* malloc_dbuf(uint32_t size);
+        void free_dbuf(void *mem);
     private:
         MemoryManager(std::string name);
         ~MemoryManager();
         std::list<mem_allocation_t*> allocations;
+
 };
 
 static MemoryManager* g_instance = NULL;
@@ -63,7 +69,7 @@ MemoryManager* MemoryManager::GetInstance(void)
 void* MemoryManager::malloc(std::string tag, uint32_t size)
 {
     void *mem;
-    assert(tag.length() < MAX_TAG_LENGTH);
+    mASSERT(tag.length() < MAX_TAG_LENGTH);
 
     size += sizeof(mem_allocation_t);
     if (posix_memalign(&mem, CACHELINE_BYTES, size) > 0)
@@ -72,10 +78,11 @@ void* MemoryManager::malloc(std::string tag, uint32_t size)
                     size, CACHELINE_BYTES);
         return NULL;
     }
-    assert(mem != NULL);
+    mASSERT(mem != NULL);
+    mASSERT(((uintptr_t)mem & (CACHELINE_BYTES-1)) == 0);
     mem_allocation_t *alloc = (mem_allocation_t*)mem;
     tag.copy(alloc->tag, CACHELINE_BYTES);
-    alloc->size = size;
+    alloc->size = size - sizeof(mem_allocation_t);
     alloc->tag[tag.length()] = '\0';
     allocations.push_front(alloc);
     mem = mALLOCATION_TO_MEM(alloc);
@@ -99,7 +106,7 @@ void MemoryManager::check_allocations(void)
         mem_allocation_t *alloc = *it;
         mLOG_ERROR(" -- allocation (%s) (%d) bytes", alloc->tag, alloc->size);
     }
-    assert(allocations.size() == 0);
+    mASSERT(allocations.size() == 0);
 }
 
 void* Memory::Malloc(std::string tag, uint32_t size)
@@ -115,4 +122,24 @@ void Memory::Free(void *mem)
 void Memory::Check(void)
 {
     return MemoryManager::GetInstance()->check_allocations();
+}
+
+void* Memory::DBufAlloc(size_t size)
+{
+    return MemoryManager::GetInstance()->malloc("dbuf", size);
+}
+
+void Memory::DBufFree(void *mem)
+{
+    MemoryManager::GetInstance()->free(mem);
+}
+
+uint8_t* Memory::DBufDataAlloc(size_t size)
+{
+    return (uint8_t*)(uintptr_t)MemoryManager::GetInstance()->malloc("dbuf-data", size);
+}
+
+void Memory::DBufDataFree(uint8_t *mem)
+{
+    MemoryManager::GetInstance()->free(mem);
 }

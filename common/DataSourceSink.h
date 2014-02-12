@@ -9,12 +9,17 @@
 #include "Stats.h"
 #include "memory.h"
 
-class DataBuffer
+//
+// Data buffers are the base class for all data movement within the
+// codec.  They move encoded/decoded jpeg data, packet data, keyboard and
+// mouse strokes.
+
+class DataBuffer : ReferencedObject
 {
     public:
-        static std::shared_ptr<DataBuffer> Create(uint32_t buffer_size)
+        static DataBuffer* Create(uint32_t buffer_size)
         {
-            return std::make_shared<DataBuffer>(buffer_size);
+            return new DataBuffer(buffer_size);
         };
 
         uint32_t get_size(void) { return this->size; };

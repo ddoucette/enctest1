@@ -8,16 +8,16 @@
 
 #define mLOG_ERROR(fmt, ...) \
         Logger::GetInstance()->log(Logger::LVL_ERROR, \
-                __FILE__, __LINE__, this, (fmt), ##__VA_ARGS__)
+                __FILE__, __LINE__, NULL, (fmt), ##__VA_ARGS__)
 
 #define mLOG_INFO(fmt, ...) \
         Logger::GetInstance()->log(Logger::LVL_INFO, \
-                __FILE__, __LINE__, this, (fmt), ##__VA_ARGS__)
+                __FILE__, __LINE__, NULL, (fmt), ##__VA_ARGS__)
 
 #ifdef MDEBUG
 #define mLOG_DEBUG(fmt, ...) \
         Logger::GetInstance()->log(Logger::LVL_DEBUG, \
-                __FILE__, __LINE__, this, (fmt), ##__VA_ARGS__)
+                __FILE__, __LINE__, NULL, (fmt), ##__VA_ARGS__)
 #else
 #define mLOG_DEBUG(fmt, ...) do{}while(0)
 #endif

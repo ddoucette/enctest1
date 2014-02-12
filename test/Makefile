@@ -17,9 +17,17 @@ DATA_SOURCES=    unittest_data.cpp    \
                 ../common/DataSourceSink.cpp    \
                 ../common/Events.cpp
 
+DBUF_SOURCES=    unittest_dbuf.cpp    \
+                ../common/logger.cpp    \
+                ../common/memory.cpp    \
+                ../common/Benchmarking.cpp    \
+                ../common/dbuf.cpp
+
+
 MEM_OBJECTS=$(MEM_SOURCES:.cpp=.o)
 EVENT_OBJECTS=$(EVENT_SOURCES:.cpp=.o)
 DATA_OBJECTS=$(DATA_SOURCES:.cpp=.o)
+DBUF_OBJECTS=$(DBUF_SOURCES:.cpp=.o)
 
 INCLUDES=-I../common -I../encoder -I/home/ddoucette/local/include
 #CXX=clang++
@@ -29,8 +37,9 @@ LDFLAGS=-lboost_date_time -L/home/ddoucette/local/lib
 MEM=unittest_mem
 EVENT=unittest_event
 DATA=unittest_data
+DBUF=unittest_dbuf
 
-all: $(MEM_SOURCES) $(MEM) $(EVENT_SOURCES) $(EVENT) $(DATA)
+all: $(MEM_SOURCES) $(MEM) $(EVENT_SOURCES) $(EVENT) $(DBUF)
 	
 $(MEM): $(MEM_OBJECTS)
 	$(CXX) $(MEM_OBJECTS) $(LDFLAGS) -o $@
@@ -40,6 +49,9 @@ $(EVENT): $(EVENT_OBJECTS)
 
 $(DATA): $(DATA_OBJECTS)
 	$(CXX) $(DATA_OBJECTS) $(LDFLAGS) -o $@
+
+$(DBUF): $(DBUF_OBJECTS)
+	$(CXX) $(DBUF_OBJECTS) $(LDFLAGS) -o $@
 
 .cpp.o:
 	$(CXX) $(CFLAGS) $(INCLUDES) $< -o $@

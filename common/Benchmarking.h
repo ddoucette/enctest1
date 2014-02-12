@@ -27,6 +27,7 @@ class BenchmarkManager : Object
         void run_duration(time_t duration);
         void run_iterations(uint64_t iterations);
         void stop(void);
+        void report(void);
 
         static void Thread(BenchmarkManager *b);
 

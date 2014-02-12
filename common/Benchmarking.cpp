@@ -1,6 +1,7 @@
 #include <string>
 #include <thread>
 #include <cassert>
+#include <iostream>
 
 #include "Benchmarking.h"
 
@@ -58,6 +59,14 @@ void BenchmarkManager::run_duration(time_t duration)
     }
     this->duration = current_time - start_time;
     this->bobj->end();
+}
+
+void BenchmarkManager::report(void)
+{
+    double ops_per_sec = (double)iterations / (double)duration;
+    std::cout << " - iterations (" << iterations << ")\n";
+    std::cout << " - duration (" << duration << ")\n";
+    std::cout << " - ops/sec (" << ops_per_sec << ")\n";
 }
 
 void BenchmarkManager::run_iterations(uint64_t iterations)
