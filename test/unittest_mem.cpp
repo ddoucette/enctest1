@@ -27,6 +27,7 @@ int main(int argc, char **argv)
     fb5 = NULL;
     fb6 = NULL;
     Memory::Check();
+    Memory::Finalize();
 
     std::cout << "PASSED!\n";
     return 0;

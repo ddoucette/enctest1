@@ -6,6 +6,8 @@
 #include "Benchmarking.h"
 #include "dbuf.h"
 #include "iassert.h"
+#include "memory_pool.h"
+#include "dbuf_factory.h"
 
 
 class DBufBenchmark : public BenchmarkObject, public Object
@@ -14,11 +16,13 @@ class DBufBenchmark : public BenchmarkObject, public Object
         DBufBenchmark(std::string name) : Object(name) {};
         ~DBufBenchmark() {};
         void begin(void) {};
-        void end(void) {};
+        void end(void)
+        {
+            DBufFactory::Finalize();
+        };
         void do_iteration(void)
         {
-            // std::shared_ptr<DBufManager> dm(new DBufManager("DBM"));
-            std::shared_ptr<DBuf> dbuf = DBuf::Create();
+            std::shared_ptr<DBuf> dbuf = DBufFactory::Create();
             mASSERT(dbuf != NULL);
             dbuf = NULL;
         }
@@ -27,7 +31,6 @@ class DBufBenchmark : public BenchmarkObject, public Object
 
 void test1(void)
 {
-    DBuf::Initialize();
     DBufBenchmark *bmark = new DBufBenchmark("test1");
     BenchmarkManager *bmgr = new BenchmarkManager("test1-manager", bmark);
     bmgr->set_duration((time_t)10);

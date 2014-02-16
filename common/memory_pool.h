@@ -1,17 +1,19 @@
 #pragma once
 
+#include <string>
 #include "pstack.h"
 #include "spinlock.h"
 #include "logger.h"
 #include "constants.h"
 #include "iassert.h"
 #include "memory.h"
+#include "object.h"
 
 template<typename T>
-class MemoryPool
+class MemoryPool : public Object
 {
     public:
-        MemoryPool(size_t size);
+        MemoryPool(std::string name, size_t size);
         ~MemoryPool();
 
         T* alloc(void);
@@ -20,14 +22,19 @@ class MemoryPool
     private:
         PStack<T>  *mem_stack;
         Spinlock    lock;
+        size_t      size;
         void       *buffer;
+        uint64_t    nr_allocations;
 };
 
 template<class T>
-MemoryPool<T>::MemoryPool(size_t size)
+MemoryPool<T>::MemoryPool(std::string name, size_t size) :
+                    Object(name)
 {
     mASSERT(size > 0);
 
+    this->size = size;
+    this->nr_allocations = 0;
     mem_stack = new PStack<T>(size);
 
     // For performance reasons, we would like to follow a few
@@ -42,7 +49,7 @@ MemoryPool<T>::MemoryPool(size_t size)
 
     size_t cache_aligned_element_size = mALIGN(element_size, CACHELINE_BYTES);
     mASSERT(cache_aligned_element_size >= CACHELINE_BYTES);
-    this->buffer = Memory::Malloc("mem-pool-", cache_aligned_element_size * size);
+    this->buffer = Memory::Malloc(this->get_name(), cache_aligned_element_size * size);
     T  *element = (T*)this->buffer;
     for (size_t i = 0; i < size; i++ )
     {
@@ -52,10 +59,26 @@ MemoryPool<T>::MemoryPool(size_t size)
 }
 
 template<class T>
+MemoryPool<T>::~MemoryPool(void)
+{
+    mASSERT(mem_stack->size() == this->size);
+    Memory::Free(this->buffer);
+
+    mLOG_INFO("(%s) nr_allocations (%lu)", this->get_name().c_str(), this->nr_allocations);
+
+    // We dont really need to pop each item, we do it just because...
+    while (!mem_stack->empty())
+        mem_stack->pop();
+
+    delete mem_stack;
+}
+
+template<class T>
 T* MemoryPool<T>::alloc(void)
 {
     this->lock.lock();
     T* element = mem_stack->pop();
+    this->nr_allocations++;
     this->lock.unlock();
     return element;
 }

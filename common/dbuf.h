@@ -18,13 +18,21 @@ typedef struct dbuf_buffer
 class DBuf
 {
     public:
-        static std::shared_ptr<DBuf> Create(void)
+        DBuf(void)
         {
-            std::shared_ptr<DBuf> dbuf(new DBuf());
-            return dbuf;
+            this->buffer_size = DBUF_SIZE;
+            this->headroom = DBUF_HEADROOM;
+            this->size = 0;
+            alloc_buffer();
+            this->data_head = this->mem + headroom;
         }
 
-        static void Initialize(void);
+        ~DBuf()
+        {
+            free_buffer();
+            this->mem = NULL;
+            this->data_head = NULL;
+        }
 
         size_t get_size(void) { return this->size; };
         size_t get_headroom(void) { return this->headroom; };
@@ -56,26 +64,13 @@ class DBuf
 
         void* operator new (size_t size);
         void operator delete (void *mem);
+        virtual void alloc_buffer(void);
+        virtual void free_buffer(void);
 
-        DBuf();
-        ~DBuf();
     private:
         size_t size;
         size_t headroom;
         size_t buffer_size;
         uint8_t *data_head;
         uint8_t *mem;
-};
-
-class DBufPool
-{
-    public:
-        static DBuf* Alloc(void);
-        static dbuf_buffer_t* BufferAlloc(void);
-        static void Free(DBuf* dbuf);
-        static void BufferFree(dbuf_buffer_t* buffer);
-        static void Initialize(void);
-    private:
-        static MemoryPool<DBuf> *dbuf_pool;
-        static MemoryPool<dbuf_buffer_t> *buffer_pool;
 };

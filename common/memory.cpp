@@ -9,7 +9,6 @@
 #include "constants.h"
 #include "macros.h"
 #include "iassert.h"
-#include "dbuf.h"
 
 
 #define mMEM_TO_ALLOCATION(mem) \
@@ -36,14 +35,10 @@ class MemoryManager : public Memory, Object
         uint32_t nr_allocations(void) { return allocations.size(); };
         void check_allocations(void);
 
-        // DBuf specific allocations
-        void* malloc_dbuf(uint32_t size);
-        void free_dbuf(void *mem);
-    private:
         MemoryManager(std::string name);
         ~MemoryManager();
+    private:
         std::list<mem_allocation_t*> allocations;
-
 };
 
 static MemoryManager* g_instance = NULL;
@@ -124,22 +119,9 @@ void Memory::Check(void)
     return MemoryManager::GetInstance()->check_allocations();
 }
 
-void* Memory::DBufAlloc(size_t size)
+void Memory::Finalize(void)
 {
-    return MemoryManager::GetInstance()->malloc("dbuf", size);
-}
-
-void Memory::DBufFree(void *mem)
-{
-    MemoryManager::GetInstance()->free(mem);
-}
-
-uint8_t* Memory::DBufDataAlloc(size_t size)
-{
-    return (uint8_t*)(uintptr_t)MemoryManager::GetInstance()->malloc("dbuf-data", size);
-}
-
-void Memory::DBufDataFree(uint8_t *mem)
-{
-    MemoryManager::GetInstance()->free(mem);
+    if (g_instance != NULL)
+        delete g_instance;
+    g_instance = NULL;
 }

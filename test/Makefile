@@ -12,16 +12,14 @@ EVENT_SOURCES=    unittest_event.cpp    \
 
 DATA_SOURCES=    unittest_data.cpp    \
                 ../common/logger.cpp    \
-                ../common/memory.cpp    \
                 ../common/Benchmarking.cpp    \
-                ../common/DataSourceSink.cpp    \
                 ../common/Events.cpp
 
 DBUF_SOURCES=    unittest_dbuf.cpp    \
                 ../common/logger.cpp    \
                 ../common/memory.cpp    \
-                ../common/Benchmarking.cpp    \
-                ../common/dbuf.cpp
+                ../common/dbuf_factory.cpp    \
+                ../common/Benchmarking.cpp
 
 
 MEM_OBJECTS=$(MEM_SOURCES:.cpp=.o)
