@@ -7,32 +7,10 @@
 #include "logger.h"
 
 
-FrameBuffer::FrameBuffer(   std::string name,
-                            uint32_t width,
+FrameBuffer::FrameBuffer(   uint32_t width,
                             uint32_t height,
                             uint32_t bpp,
-                            uint32_t stride) :
-                            Object(name)
-{
-    initialize(width, height, bpp, stride);
-}
-
-FrameBuffer::FrameBuffer(   std::string name,
-                            uint32_t width,
-                            uint32_t height,
-                            uint32_t bpp ) :
-                            Object(name)
-{
-    // Set the stride to be the cache-aligned, just beyond
-    // the specified width.
-    uint32_t stride = mALIGN(width * (bpp/8), CACHELINE_BYTES);
-    initialize(width, height, bpp, stride);
-}
-
-void FrameBuffer::initialize(   uint32_t width,
-                                uint32_t height,
-                                uint32_t bpp,
-                                uint32_t stride)
+                            uint32_t stride)
 {
     assert(width <= MAX_WIDTH);
     assert(width > 0);
@@ -58,7 +36,7 @@ void FrameBuffer::initialize(   uint32_t width,
         this->nr_slices++;
         this->partial_slice = true;
     }
-    this->buffer = Memory::Malloc(  this->get_name(),
+    this->buffer = Memory::Malloc(  "framebuffer",
                                     stride * height * (bpp/8));
 }
 
@@ -68,37 +46,12 @@ FrameBuffer::~FrameBuffer(void)
     this->buffer = NULL;
 }
 
-std::shared_ptr<FrameBuffer>
-FrameBuffer::Create(std::string name,
-                    uint32_t width,
+frame_buffer_t
+FrameBuffer::Create(uint32_t width,
                     uint32_t height,
                     uint32_t bpp,
                     uint32_t stride)
 {
-    try
-    {
-        std::shared_ptr<FrameBuffer> fb(new FrameBuffer(name, width, height, bpp, stride));
-        return fb;
-    }
-    catch (std::bad_alloc& ba)
-    {
-        return std::shared_ptr<FrameBuffer>(NULL);
-    }
-}
-
-std::shared_ptr<FrameBuffer>
-FrameBuffer::Create(std::string name,
-                    uint32_t width,
-                    uint32_t height,
-                    uint32_t bpp)
-{
-    try
-    {
-        std::shared_ptr<FrameBuffer> fb(new FrameBuffer(name, width, height, bpp));
-        return fb;
-    }
-    catch (std::bad_alloc& ba)
-    {
-        return std::shared_ptr<FrameBuffer>(NULL);
-    }
+    frame_buffer_t fb(new FrameBuffer(width, height, bpp, stride));
+    return fb;
 }

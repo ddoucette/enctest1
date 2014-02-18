@@ -10,9 +10,14 @@ EVENT_SOURCES=    unittest_event.cpp    \
                 ../common/Benchmarking.cpp    \
                 ../common/Events.cpp
 
-DATA_SOURCES=    unittest_data.cpp    \
-                ../common/logger.cpp    \
-                ../common/Benchmarking.cpp    \
+DATA_SOURCES=    unittest_data.cpp              \
+                ../common/logger.cpp            \
+                ../common/Benchmarking.cpp      \
+                ../common/memory.cpp            \
+                ../encoder/SurfaceEncoder.cpp   \
+                ../encoder/isurface_test.cpp    \
+                ../encoder/FrameBuffer.cpp      \
+                ../encoder/SliceEncoder.cpp     \
                 ../common/Events.cpp
 
 DBUF_SOURCES=    unittest_dbuf.cpp    \

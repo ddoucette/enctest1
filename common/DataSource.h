@@ -15,6 +15,7 @@
 // This object also handles the reception and re-issue of
 // ready/full events.
 //
+
 template<class T>
 class DataSource :
         public Object,

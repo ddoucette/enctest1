@@ -1,30 +1,27 @@
 #pragma once
 
 #include <cstdint>
-#include <cassert>
 #include <memory>
+#include "iassert.h"
 #include "constants.h"
 #include "object.h"
 
-class FrameBuffer : public Object
+class FrameBuffer;
+typedef std::shared_ptr<FrameBuffer> frame_buffer_t;
+
+class FrameBuffer
 {
     public:
         ~FrameBuffer();
-        static std::shared_ptr<FrameBuffer>
-            Create(std::string name,
-                   uint32_t width,
+        static frame_buffer_t
+            Create(uint32_t width,
                    uint32_t height,
                    uint32_t bpp,
                    uint32_t stride);
-        static std::shared_ptr<FrameBuffer>
-            Create(std::string name,
-                   uint32_t width,
-                   uint32_t height,
-                   uint32_t bpp);
 
         void* get_slice(uint32_t slice_num)
         {
-            assert(slice_num < nr_slices);
+            mASSERT(slice_num < nr_slices);
             return (void*)((uintptr_t)buffer +
                     (slice_num * (SLICE_HEIGHT * stride)));
         };
@@ -33,22 +30,13 @@ class FrameBuffer : public Object
         uint32_t get_height(void) { return this->height; };
         uint32_t get_bpp(void) { return this->bpp; };
         uint32_t get_stride(void) { return this->stride; };
+        uint32_t get_nr_slices(void) { return this->nr_slices; };
 
     private:
-        FrameBuffer(std::string name,
-                    uint32_t width,
+        FrameBuffer(uint32_t width,
                     uint32_t height,
                     uint32_t bpp,
                     uint32_t stride);
-        FrameBuffer(std::string name,
-                    uint32_t width,
-                    uint32_t height,
-                    uint32_t bpp);
-
-        void initialize(uint32_t width,
-                        uint32_t height,
-                        uint32_t bpp,
-                        uint32_t stride);
 
         // Width/height of the surface
         uint32_t    width, height;

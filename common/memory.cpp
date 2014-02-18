@@ -71,7 +71,7 @@ void* MemoryManager::malloc(std::string tag, uint32_t size)
     {
         mLOG_ERROR("Could not allocate (%d) bytes aligned at (%d)",
                     size, CACHELINE_BYTES);
-        return NULL;
+        throw new std::bad_alloc();
     }
     mASSERT(mem != NULL);
     mASSERT(((uintptr_t)mem & (CACHELINE_BYTES-1)) == 0);

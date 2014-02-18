@@ -16,11 +16,15 @@ int main(int argc, char **argv)
     assert(((uintptr_t)mem & 63) == 0);
     Memory::Free(mem);
 
-    std::shared_ptr<FrameBuffer> fb2 = FrameBuffer::Create("fb2", 1000,1000,32);
-    std::shared_ptr<FrameBuffer> fb3 = FrameBuffer::Create("fb3", 1000,1000,32);
-    std::shared_ptr<FrameBuffer> fb4 = FrameBuffer::Create("fb4", 1000,1000,32);
-    std::shared_ptr<FrameBuffer> fb5 = FrameBuffer::Create("fb5", 1000,1000,32);
-    std::shared_ptr<FrameBuffer> fb6 = FrameBuffer::Create("fb6", 1000,1000,32);
+    uint32_t width = 1000;
+    uint32_t height = 1000;
+    uint32_t bpp = 32;
+    uint32_t stride = width * (bpp/8);
+    frame_buffer_t fb2 = FrameBuffer::Create(width,height,bpp,stride);
+    frame_buffer_t fb3 = FrameBuffer::Create(width,height,bpp,stride);
+    frame_buffer_t fb4 = FrameBuffer::Create(width,height,bpp,stride);
+    frame_buffer_t fb5 = FrameBuffer::Create(width,height,bpp,stride);
+    frame_buffer_t fb6 = FrameBuffer::Create(width,height,bpp,stride);
     fb2 = NULL;
     fb3 = NULL;
     fb4 = NULL;

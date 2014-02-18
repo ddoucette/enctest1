@@ -1,26 +1,24 @@
 #include <iostream>
-#include <cassert>
 #include <memory>
 #include <string>
-#include "object.h"
 #include "logger.h"
-#include "Events.h"
 #include "Benchmarking.h"
-#include "DataReceiver.h"
-#include "DataSource.h"
-#include "dbuf.h"
-#include "memory.h"
+#include "SurfaceEncoder.h"
+#include "ISurface.h"
 
 void test1(void)
 {
-    MemoryPool<DBuf> 
-    DBuf::Initialize();
-    std::shared_ptr<DataReceiver<DBuf>> rcv = DataReceiver<DBuf>::Create("rcv1", 10, 5);
-    std::shared_ptr<DataSource<DBuf>> src = DataSource<DBuf>::Create("src1");
-    src->connect(rcv);
-
-    std::shared_ptr<DBuf> dbuf(new DBuf());
-    src->send(dbuf);
+    isurface_t surface = ISurface::Create("test-surface-1");
+    uint32_t width = 1000;
+    uint32_t height = 1000;
+    uint32_t bpp = 32;
+    uint32_t x = 0;
+    uint32_t y = 0;
+    surface->set_dimension(width, height, bpp);
+    surface->set_topology(x, y);
+    surface_encoder_t se1 = SurfaceEncoder::Create("Desktop1", surface);
+    se1->encode();
+    se1 = NULL;
 }
 
 int main(int argc, char **argv)

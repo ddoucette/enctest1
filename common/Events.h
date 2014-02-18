@@ -7,6 +7,9 @@
 typedef uint32_t event_t;
 
 class EventReceiver;
+typedef std::shared_ptr<EventReceiver> event_receiver_t;
+class EventSource;
+typedef std::shared_ptr<EventSource> event_source_t;
 
 class EventSource : public std::enable_shared_from_this<EventSource>
 {
@@ -14,17 +17,16 @@ class EventSource : public std::enable_shared_from_this<EventSource>
         EventSource() {};
         ~EventSource() {};
 
-        void register_event_receiver(std::shared_ptr<EventReceiver> rcv);
+        void register_event_receiver(event_receiver_t rcv);
         void trigger_event(event_t event);
 
     private:
-        std::list<std::shared_ptr<EventReceiver>> receivers;
+        std::list<event_receiver_t> receivers;
         std::mutex lock;
 };
 
 class EventReceiver
 {
     public:
-        virtual void event_rcv( std::shared_ptr<EventSource> esrc,
-                                event_t event)=0;
+        virtual void event_rcv( event_source_t esrc, event_t event)=0;
 };
