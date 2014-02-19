@@ -5,6 +5,12 @@
 #include <list>
 #include <condition_variable>
 
+void thread_func(void *arg)
+{
+    thread_pool_t thread_pool = static_cast<thread_pool_t>(arg);
+    thread_pool->thread_entry();
+}
+
 ThreadPool::ThreadPool(uint32_t pool_size)
 {
     this->is_active = true;
@@ -12,7 +18,7 @@ ThreadPool::ThreadPool(uint32_t pool_size)
         std::lock_guard<std::mutex> lck(this->lock);
         for (uint32_t i = 0; i < pool_size; i++)
         {
-            std::thread worker(thread_func, this);
+            std::thread worker(thread_func, this->shared_from_this());
             threads.push_front(worker);
         }
     }
@@ -37,38 +43,67 @@ ThreadPool::~ThreadPool()
 
     std::lock_guard<std::mutex> lck(this->lock);
     while (!wait_queue.empty())
-        wait_queue.pop_back();
+        wait_queue.pop();
     while (!ready_queue.empty())
-        ready_queue.pop_back();
+        ready_queue.pop();
 }
 
-bool ThreadPool::schedule(thread_runnable_t thread)
+bool ThreadPool::schedule(thread_runnable_t task)
 {
     // Do not double-queue
     std::lock_guard<std::mutex> lck(this->lock);
-    if (find_thread(thread) != NULL)
+    if (find_thread(task) != NULL)
         return true;
-    ready_queue.push(thread);
+    ready_queue.push(task);
     return true;
 }
 
-void ThreadPool::deschedule(thread_runnable_t thread)
+bool ThreadPool::schedule(thread_runnable_t task, uint32_t usec_interval)
+{
+    // Do not double-queue
+    std::lock_guard<std::mutex> lck(this->lock);
+    task->usec_interval = usec_interval;
+
+    if (find_thread(task) != NULL)
+        return true;
+
+    ready_queue.push(task);
+    return true;
+}
+
+void ThreadPool::deschedule(thread_runnable_t task)
 {
     std::lock_guard<std::mutex> lck(this->lock);
-    ready_queue.remove(thread);
-    wait_queue.remove(thread);
+    ready_queue.remove(task);
+    wait_queue.remove(task);
 }
 
 void ThreadPool::thread_entry(void)
 {
+    thread_runnable_t task = NULL
     while (true)
     {
-        std::unique_lock<std::mutex> lk(this->lock);
-        if (!this->is_active)
-            break;
+        {
+            std::unique_lock<std::mutex> lk(this->lock);
+            if (!this->is_active)
+                break;
+            do
+            {
+                // First, pick a task from the wait queue.  If not,
+                // pick from the ready queue.
+                task = wait_queue.front();
+                if (task == NULL)
+                    task = ready_queue.pop_back();
 
-        
-        cv.wait(lk);
+                if (task == NULL)
+                    cv.wait(lk);
+            } while (task == NULL);
+        }
+        // We are now outside of the lock, and we should have
+        // a task to run now.
+        mASSERT_DEBUG(task != NULL);
+        task->run();
+        task = NULL;
     }
 }
 

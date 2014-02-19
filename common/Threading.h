@@ -16,21 +16,27 @@ class ThreadRunnable
     friend ThreadPool;
     public:
         virtual void run(void)=0;
-        virtual void get_period(void) { return 0; };
     protected:
-        uint64_t last_scheduled;
+        std::chrono::time_point last_scheduled;
+        uint32_t usec_interval;
 };
 
-class ThreadPool
+class ThreadPool : public enable_shared_from_this<ThreadPool>
 {
     public:
         ThreadPool(uint32_t pool_size);
         ~ThreadPool();
 
-        bool schedule(thread_runnable_t thread);
+        // Schedule the task immediately
+        bool schedule(thread_runnable_t task);
+
+        // Schedule the task for the specified interval, in microseconds.
+        // Will schedule the task so as to maintain the specified interval
+        // between schedules of the specified task.
+        bool schedule(thread_runnable_t task, uint32_t usec_interval);
 
         // Remove from schedule if the thread is periodic.
-        void deschedule(thread_runnable_t thread);
+        void deschedule(thread_runnable_t task);
 
         // Entry point for each worker thread.
         void thread_entry(void);
