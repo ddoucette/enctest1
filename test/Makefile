@@ -14,6 +14,7 @@ DATA_SOURCES=    unittest_data.cpp              \
                 ../common/logger.cpp            \
                 ../common/Benchmarking.cpp      \
                 ../common/memory.cpp            \
+                ../common/Threading.cpp         \
                 ../encoder/SurfaceEncoder.cpp   \
                 ../encoder/isurface_test.cpp    \
                 ../encoder/FrameBuffer.cpp      \

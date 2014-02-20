@@ -5,6 +5,7 @@
 #include "FrameBuffer.h"
 #include "ImageTile.h"
 #include "DataSource.h"
+#include "Threading.h"
 #include "Events.h"
 
 typedef std::shared_ptr<DataSource<ImageTile>> image_data_source_t;
@@ -14,7 +15,8 @@ typedef std::shared_ptr<SliceEncoder> slice_encoder_t;
 // The slice encoder will emit a 'done' event when the slice
 // has completed encoding.
 class SliceEncoder : public Object,
-                     public EventSource
+                     public EventSource,
+                     public ThreadRunnable
 {
     public:
         enum Event

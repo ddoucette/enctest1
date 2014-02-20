@@ -4,6 +4,7 @@
 #include <list>
 #include <thread>
 #include <condition_variable>
+#include <chrono>
 
 class ThreadPool;
 typedef std::shared_ptr<ThreadPool> thread_pool_t;
@@ -13,15 +14,15 @@ typedef std::shared_ptr<ThreadRunnable> thread_runnable_t;
 
 class ThreadRunnable
 {
-    friend ThreadPool;
+    friend class ThreadPool;
     public:
         virtual void run(void)=0;
     protected:
-        std::chrono::time_point last_scheduled;
-        uint32_t usec_interval;
+        uint64_t last_scheduled;
+        uint64_t usec_interval;
 };
 
-class ThreadPool : public enable_shared_from_this<ThreadPool>
+class ThreadPool : public std::enable_shared_from_this<ThreadPool>
 {
     public:
         ThreadPool(uint32_t pool_size);
@@ -48,11 +49,13 @@ class ThreadPool : public enable_shared_from_this<ThreadPool>
         // Notify all worker threads.
         void notify_all(void);
 
+        bool task_is_queued(thread_runnable_t task);
+
         // Scheduled threads
-        std::queue<thread_runnable_t>   ready_queue;
+        std::list<thread_runnable_t>    ready_queue;
 
         // Threads waiting to be scheduled
-        std::queue<thread_runnable_t>   wait_queue;
+        std::list<thread_runnable_t>    wait_queue;
 
         // Flag to indicate if the thread pool is still active.
         bool is_active;
@@ -64,5 +67,5 @@ class ThreadPool : public enable_shared_from_this<ThreadPool>
         std::condition_variable cv;
 
         // Pool of threads
-        std::list<std::thread> threads;
+        std::list<std::thread*> threads;
 };
