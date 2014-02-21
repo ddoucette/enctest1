@@ -17,7 +17,7 @@ void test1(void)
     surface->set_dimension(width, height, bpp);
     surface->set_topology(x, y);
     surface_encoder_t se1 = SurfaceEncoder::Create("Desktop1", surface);
-    thread_pool_t thread_pool(new ThreadPool(10));
+    thread_pool_t thread_pool = ThreadPool::Create(10);
     se1->start(thread_pool);
     se1 = NULL;
 }

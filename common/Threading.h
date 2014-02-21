@@ -25,7 +25,11 @@ class ThreadRunnable
 class ThreadPool : public std::enable_shared_from_this<ThreadPool>
 {
     public:
-        ThreadPool(uint32_t pool_size);
+        static thread_pool_t Create(uint32_t pool_size)
+        {
+            return thread_pool_t(new ThreadPool(pool_size));
+        }
+
         ~ThreadPool();
 
         // Schedule the task immediately
@@ -43,6 +47,8 @@ class ThreadPool : public std::enable_shared_from_this<ThreadPool>
         void thread_entry(void);
 
     private:
+        ThreadPool(uint32_t pool_size);
+
         // Notify the next waiting worker thread.
         void notify(void);
 

@@ -7,8 +7,8 @@
 #include "DataSource.h"
 #include "Threading.h"
 #include "Events.h"
+#include "ProtocolConnection.h"
 
-typedef std::shared_ptr<DataSource<ImageTile>> image_data_source_t;
 class SliceEncoder;
 typedef std::shared_ptr<SliceEncoder> slice_encoder_t;
 
@@ -25,8 +25,9 @@ class SliceEncoder : public Object,
         };
 
         static slice_encoder_t Create(
+                                    surface_encoder_t encoder,
                                     frame_buffer_t fb,
-                                    image_data_source_t data_queue,
+                                    protocol_connection_t prconn,
                                     uint32_t slice_nr);
 
         ~SliceEncoder();
@@ -35,13 +36,16 @@ class SliceEncoder : public Object,
         // the slice is encoded and pushed out.
         void encode(void);
 
+        // Run the encoder
+        virtual void run(void);
+
     private:
         SliceEncoder(   std::string name,
                         frame_buffer_t fb,
                         image_data_source_t dsrc,
                         uint32_t slice_nr);
 
-        image_data_source_t     data_queue;
+        protocol_connection_t   prconn;
         frame_buffer_t          fb;
         uint32_t                slice_nr;
 };

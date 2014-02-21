@@ -13,7 +13,7 @@ class SurfaceEncoder : public Object,
                        public ThreadRunnable
 {
     public:
-        static surface_encoder_t Create(std::string name, isurface_t surface); 
+        static surface_encoder_t Create(isurface_t surface); 
 
         // Start/stop encoding
         bool start(thread_pool_t thread_pool);
@@ -24,6 +24,9 @@ class SurfaceEncoder : public Object,
 
         // Receive events from the slice encoders
         void event_rcv(event_source_t src, event_t event);
+
+        // Retrieve the surface.
+        isurface_t get_surface(void) { return surface; }
 
         ~SurfaceEncoder();
 

@@ -1,46 +1,26 @@
 #pragma once
 
+#include <memory>
 #include <string>
 #include <atomic>
 #include "iassert.h"
 
+class Object;
+typedef std::shared_ptr<Object> object_t;
+
 class Object
 {
     public:
-        Object(std::string name){ this->name = name; };
+        Object(std::string name, object_t parent)
+        {
+            this->name = name;
+            this->parent = parent;
+        };
         ~Object() {};
+
         std::string get_name() { return this->name; };
+        object_t get_parent() { return this->parent; };
     private:
+        object_t parent;
         std::string name;
-};
-
-class ReferencedObject
-{
-    public:
-        ReferencedObject()
-        {
-            val = 1;
-        };
-        void ref_add(void)
-        {
-            mASSERT(val > 0);
-            val.fetch_add(1);
-        };
-        void ref_del(void)
-        {
-            mASSERT(val >= 1);
-            if (val.fetch_sub(1) == 1)
-            {
-                destroy();
-            }
-        };
-        virtual void destroy(void) {};
-    protected:
-        ~ReferencedObject()
-        {
-            mASSERT(val == 0);
-        };
-
-    private:
-        std::atomic<int> val;
 };

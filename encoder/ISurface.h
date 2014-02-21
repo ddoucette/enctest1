@@ -8,11 +8,18 @@
 class ISurface;
 typedef std::shared_ptr<ISurface> isurface_t;
 
+class ISurfaceGroup;
+typedef std::shared_ptr<ISurfaceGroup> isurface_group_t;
+
+
 class ISurfaceGroup
 {
     public:
         ISurfaceGroup();
         ~ISurfaceGroup();
+        void add_surface(isurface_t surface);
+        void remove_surface(isurface_t surface);
+
         std::list<isurface_t> get_surfaces(void) { return this->surfaces; };
     private:
         std::list<isurface_t> surfaces;
@@ -21,7 +28,7 @@ class ISurfaceGroup
 class ISurface
 {
     public:
-        static isurface_t Create(std::string name);
+        static isurface_t Create(std::string name, object_t parent);
 
         // Blit the surface pixels into the provided frame buffer.
         virtual bool grab(FrameBuffer *fb)=0;

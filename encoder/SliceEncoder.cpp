@@ -30,3 +30,7 @@ void SliceEncoder::encode(void)
 {
     trigger_event(EVENT_ENCODE_COMPLETE);
 }
+
+void SliceEncoder::run(void)
+{
+}
