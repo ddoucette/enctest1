@@ -20,21 +20,21 @@ DATA_SOURCES=    unittest_data.cpp              \
                 ../encoder/SliceEncoder.cpp     \
                 ../common/Events.cpp
 
-DBUF_SOURCES=    unittest_dbuf.cpp    \
-                ../common/logger.cpp    \
-                ../common/memory.cpp    \
-                ../common/dbuf_factory.cpp    \
+DBUF_SOURCES=    unittest_dbuf.cpp              \
+                ../common/logger.cpp            \
+                ../common/memory.cpp            \
+                ../common/dbuf_factory.cpp      \
                 ../common/Benchmarking.cpp
 
-APP_SOURCES=    unittest_app.cpp    \
-                ../common/logger.cpp    \
+APP_SOURCES=    unittest_app.cpp                \
+                ../common/logger.cpp            \
                 ../common/Benchmarking.cpp      \
                 ../common/memory.cpp            \
                 ../common/Threading.cpp         \
                 ../encoder/SurfaceEncoder.cpp   \
                 ../encoder/FrameBuffer.cpp      \
                 ../encoder/SliceEncoder.cpp     \
-                ../application/ApplicationManager.cpp     \
+                ../encoder/EncoderManager.cpp   \
                 ../common/Events.cpp
                
 

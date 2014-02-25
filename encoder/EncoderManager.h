@@ -1,6 +1,8 @@
 #pragma once
 #include "SecurityConfiguration.h"
 #include "ProtocolConnection.h"
+#include "ISurface.h"
+#include "SurfaceEncoder.h"
 
 // The encoder manager is the top-level object for the core
 // encoder stand-alone application.
