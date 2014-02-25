@@ -11,7 +11,7 @@ class BenchmarkObject
         virtual void do_iteration(void)=0;
 };
 
-class BenchmarkManager : Object
+class BenchmarkManager : public Object
 {
     public:
         BenchmarkManager(std::string name, BenchmarkObject *bobj);

@@ -4,13 +4,15 @@
 #include "ISurface.h"
 #include "SliceEncoder.h"
 #include "Threading.h"
+#include "ImageTile.h"
 
 class SurfaceEncoder;
 typedef std::shared_ptr<SurfaceEncoder> surface_encoder_t;
 
 class SurfaceEncoder : public Object,
                        public EventReceiver,
-                       public ThreadRunnable
+                       public ThreadRunnable,
+                       public std::enable_shared_from_this<SurfaceEncoder>
 {
     public:
         static surface_encoder_t Create(isurface_t surface); 
@@ -36,6 +38,6 @@ class SurfaceEncoder : public Object,
         isurface_t                  surface;
         std::list<slice_encoder_t>  slice_encoders;
         frame_buffer_t              fb;
-        image_data_source_t         data_queue;
+        image_tile_source_t         data_queue;
         thread_pool_t               thread_pool;
 };

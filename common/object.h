@@ -11,6 +11,12 @@ typedef std::shared_ptr<Object> object_t;
 class Object
 {
     public:
+        Object(std::string name)
+        {
+            this->name = name;
+            this->parent = NULL;
+        };
+
         Object(std::string name, object_t parent)
         {
             this->name = name;

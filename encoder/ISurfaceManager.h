@@ -1,16 +1,23 @@
 #pragma once
 #include <list>
+#include <memory>
 #include "ISurface.h"
 
-class ISurfaceManager : public Object, Notifier
+class ISurfaceManager;
+typedef std::shared_ptr<ISurfaceManager> isurface_manager_t;
+
+class ISurfaceManager :
+            public Object
 {
     public:
         // Singleton
-        static ISurfaceManager* GetInstance(void);
+        static isurface_manager_t GetInstance(void);
+        static void Finalize(void);
 
         // Get a list of all surfaces.
-        std::list<ISurfaceGroup*>& get_surfaces(void);
+        virtual std::list<isurface_t> get_surfaces(void)=0;
 
-    private:
-        std::list<ISurfaceGroup*> surfaces;
+        ~ISurfaceManager() {};
+    protected:
+        ISurfaceManager() : Object("surface-manager") {}
 };

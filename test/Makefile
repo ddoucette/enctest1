@@ -16,7 +16,6 @@ DATA_SOURCES=    unittest_data.cpp              \
                 ../common/memory.cpp            \
                 ../common/Threading.cpp         \
                 ../encoder/SurfaceEncoder.cpp   \
-                ../encoder/isurface_test.cpp    \
                 ../encoder/FrameBuffer.cpp      \
                 ../encoder/SliceEncoder.cpp     \
                 ../common/Events.cpp
@@ -27,13 +26,25 @@ DBUF_SOURCES=    unittest_dbuf.cpp    \
                 ../common/dbuf_factory.cpp    \
                 ../common/Benchmarking.cpp
 
+APP_SOURCES=    unittest_app.cpp    \
+                ../common/logger.cpp    \
+                ../common/Benchmarking.cpp      \
+                ../common/memory.cpp            \
+                ../common/Threading.cpp         \
+                ../encoder/SurfaceEncoder.cpp   \
+                ../encoder/FrameBuffer.cpp      \
+                ../encoder/SliceEncoder.cpp     \
+                ../application/ApplicationManager.cpp     \
+                ../common/Events.cpp
+               
 
 MEM_OBJECTS=$(MEM_SOURCES:.cpp=.o)
 EVENT_OBJECTS=$(EVENT_SOURCES:.cpp=.o)
 DATA_OBJECTS=$(DATA_SOURCES:.cpp=.o)
 DBUF_OBJECTS=$(DBUF_SOURCES:.cpp=.o)
+APP_OBJECTS=$(APP_SOURCES:.cpp=.o)
 
-INCLUDES=-I../common -I../encoder -I/home/ddoucette/local/include
+INCLUDES=-I../common -I../encoder -I../application -I/home/ddoucette/local/include
 #CXX=clang++
 CXX=g++
 CFLAGS=-c -Wall -Werror -g -O2 -DDEBUG -std=c++0x
@@ -42,8 +53,9 @@ MEM=unittest_mem
 EVENT=unittest_event
 DATA=unittest_data
 DBUF=unittest_dbuf
+APP=unittest_app
 
-all: $(MEM_SOURCES) $(MEM) $(EVENT_SOURCES) $(EVENT) $(DBUF)
+all: $(MEM_SOURCES) $(MEM) $(EVENT_SOURCES) $(EVENT) $(DBUF) $(APP)
 	
 $(MEM): $(MEM_OBJECTS)
 	$(CXX) $(MEM_OBJECTS) $(LDFLAGS) -o $@
@@ -56,6 +68,10 @@ $(DATA): $(DATA_OBJECTS)
 
 $(DBUF): $(DBUF_OBJECTS)
 	$(CXX) $(DBUF_OBJECTS) $(LDFLAGS) -o $@
+
+$(APP): $(APP_OBJECTS)
+	$(CXX) $(APP_OBJECTS) $(LDFLAGS) -o $@
+
 
 .cpp.o:
 	$(CXX) $(CFLAGS) $(INCLUDES) $< -o $@

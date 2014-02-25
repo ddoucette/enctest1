@@ -1,10 +1,14 @@
 #pragma once
 #include <vector>
+#include <memory>
 #include <string>
 #include <cstdint>
 #include "object.h"
 
 typedef uint32_t stat_id_t;
+
+class StatsProvider;
+typedef std::shared_ptr<StatsProvider> stats_provider_t;
 
 class Statistic
 {
@@ -57,8 +61,8 @@ class Statistic
 class StatsProvider : public Object
 {
     public:
-        StatsProvider(std::string name, uint32_t nr_stats) :
-                      Object(name)
+        StatsProvider(std::string name, object_t parent, uint32_t nr_stats) :
+                      Object(name, parent)
         {
             assert(nr_stats > 0);
             stats.reserve(nr_stats);

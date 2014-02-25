@@ -3,9 +3,10 @@
 #include "ISurface.h"
 #include "FrameBuffer.h"
 
-surface_encoder_t SurfaceEncoder::Create(std::string name, isurface_t surface)
+surface_encoder_t SurfaceEncoder::Create(isurface_t surface)
 {
-    surface_encoder_t enc(new SurfaceEncoder(name, surface));
+    std::string encoder_name = std::string("encoder-" + surface->get_name());
+    surface_encoder_t enc(new SurfaceEncoder(encoder_name, surface));
     return enc;
 }
 
@@ -23,10 +24,10 @@ SurfaceEncoder::SurfaceEncoder( std::string name,
                                stride);
 
     this->data_queue = DataSource<ImageTile>::Create("name");
-
     for (uint32_t i = 0; i < fb->get_nr_slices(); i++)
     {
-        slice_encoder_t slice_enc = SliceEncoder::Create(fb, data_queue, i);
+        slice_encoder_t slice_enc = SliceEncoder::Create(this->shared_from_this(),
+                                                         fb, data_queue, i);
         slice_encoders.push_back(slice_enc);
     }
 }

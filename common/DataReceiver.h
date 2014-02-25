@@ -11,9 +11,6 @@
 // DataReceiver is basically a packet queue that handles
 // ready/full event propagation in the same thread context.
 //
-class DataReceiver;
-typedef std::shared_ptr<DataReceiver<T>> data_receiver_t<T>;
-
 template<class T>
 class DataReceiver :
             public Object,

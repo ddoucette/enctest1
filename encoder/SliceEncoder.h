@@ -9,6 +9,9 @@
 #include "Events.h"
 #include "ProtocolConnection.h"
 
+class SurfaceEncoder;
+typedef std::shared_ptr<SurfaceEncoder> surface_encoder_t;
+
 class SliceEncoder;
 typedef std::shared_ptr<SliceEncoder> slice_encoder_t;
 
@@ -27,7 +30,7 @@ class SliceEncoder : public Object,
         static slice_encoder_t Create(
                                     surface_encoder_t encoder,
                                     frame_buffer_t fb,
-                                    protocol_connection_t prconn,
+                                    image_tile_source_t data_queue,
                                     uint32_t slice_nr);
 
         ~SliceEncoder();
@@ -41,11 +44,12 @@ class SliceEncoder : public Object,
 
     private:
         SliceEncoder(   std::string name,
+                        surface_encoder_t surface_encoder,
                         frame_buffer_t fb,
-                        image_data_source_t dsrc,
+                        image_tile_source_t dsrc,
                         uint32_t slice_nr);
 
-        protocol_connection_t   prconn;
+        image_tile_source_t     data_queue;
         frame_buffer_t          fb;
         uint32_t                slice_nr;
 };

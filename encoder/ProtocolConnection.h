@@ -14,9 +14,9 @@ class ProtocolConnection : public Object
 
         ~ProtocolConnection();
 
-        data_receiver_t<ImageTile> get_input_channel(void);
+        image_tile_receiver_t get_image_input_channel(void);
 
     private:
         ProtocolConnection();
-        data_receiver_t<ImageTile> tile_input;
+        image_tile_receiver_t tile_input;
 };
