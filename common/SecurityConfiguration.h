@@ -10,8 +10,10 @@ typedef uint64_t cookie_t;
 class SecurityConfiguration
 {
     public:
-        static security_configuration_t Create(void);
-        static void Finalize(void);
+        static security_configuration_t Create(void)
+        {
+            return security_configuration_t(new SecurityConfiguration());
+        }
 
         ~SecurityConfiguration() {};
     private:

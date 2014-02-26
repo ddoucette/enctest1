@@ -4,7 +4,6 @@
 #include <list>
 #include <thread>
 #include <condition_variable>
-#include <chrono>
 
 class ThreadPool;
 typedef std::shared_ptr<ThreadPool> thread_pool_t;

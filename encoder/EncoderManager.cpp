@@ -1,4 +1,5 @@
 #include "EncoderManager.h"
+#include "SurfaceEncoder.h"
 #include "logger.h"
 
 static encoder_manager_t g_instance = NULL;
@@ -23,6 +24,8 @@ bool EncoderManager::set_security_configuration(
                                         security_configuration_t sec,
                                         cookie_t cookie)
 {
+    this->sec = sec;
+    this->cookie = cookie;
     return true;
 }
 
@@ -53,4 +56,6 @@ void EncoderManager::event_rcv(event_source_t esrc, event_t event)
 EncoderManager::EncoderManager(std::string name) :
                                 Object(name)
 {
+    cookie = INVALID_COOKIE;
+    thread_pool = Threading::Create(10);
 }

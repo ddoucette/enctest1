@@ -3,6 +3,7 @@
 #include "ProtocolConnection.h"
 #include "ISurface.h"
 #include "SurfaceEncoder.h"
+#include "Threading.h"
 
 // The encoder manager is the top-level object for the core
 // encoder stand-alone application.
@@ -68,12 +69,20 @@ class EncoderManager :
         EncoderManager(std::string name);
 
         std::mutex lock;
+
         // Connection bindings
         std::list<surface_binding_t> bindings;
+
         // Surface encoders
         std::list<surface_encoder_t> surface_encoders;
-        // Input encoders, audio encoders, plugin managers, ...
 
+        // Input encoders, audio encoders, plugin managers, ...
+        // XXX tbd
+
+        // Thread pool to use for all encoders.
+        thread_pool_t thread_pool;
+
+        // Security configuration and cookie for new client connections.
         security_configuration_t    sec;
         cookie_t                    cookie;
 };
