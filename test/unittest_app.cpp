@@ -21,6 +21,19 @@ void test1(void)
     smgr->create_surface(width, height, x, y, bpp);
 
     encoder_manager_t emgr = EncoderManager::GetInstance();
+    security_configuration_t sec = SecurityConfiguration::Create(12345678);
+
+    emgr->add_security_configuration(sec);
+    protocol_connection_t prconn = ProtocolConnection::Create("client1");
+    prconn->set_cookie(12345678);
+
+    isurface_t surface = smgr->get_surfaces().front();
+
+    surface_binding_t sbind = emgr->connect(surface, prconn);
+    mASSERT(sbind != NULL);
+
+    emgr->disconnect(sbind);
+
     EncoderManager::Finalize();
 }
 

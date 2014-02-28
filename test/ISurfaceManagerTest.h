@@ -23,7 +23,7 @@ class ISurfaceManagerTest : public ISurfaceManager
             surfaces.push_back(surface);
         }
 
-        std::list<isurface_t> get_surfaces(void)
+        std::list<isurface_t>& get_surfaces(void)
         {
             return surfaces;
         }

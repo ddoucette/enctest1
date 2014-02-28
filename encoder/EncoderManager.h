@@ -54,9 +54,10 @@ class EncoderManager :
 
         ~EncoderManager();
 
-        bool set_security_configuration(security_configuration_t sec,
-                                        cookie_t cookie);
-        cookie_t get_cookie(void);
+        bool add_security_configuration(security_configuration_t sec);
+        void remove_security_configuration(security_configuration_t sec);
+
+        bool is_authorized(cookie_t cookie);
 
         // (Dis)connect to the specified surface
         // Verifies necessary priviledges in the security_configuration_t.
@@ -70,6 +71,10 @@ class EncoderManager :
 
         std::mutex lock;
 
+        // Security configurations.
+        std::list<security_configuration_t> sec_confs;
+        security_configuration_t find_security_configuration(cookie_t cookie);
+
         // Connection bindings
         std::list<surface_binding_t> bindings;
 
@@ -81,8 +86,4 @@ class EncoderManager :
 
         // Thread pool to use for all encoders.
         thread_pool_t thread_pool;
-
-        // Security configuration and cookie for new client connections.
-        security_configuration_t    sec;
-        cookie_t                    cookie;
 };

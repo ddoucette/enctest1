@@ -15,7 +15,7 @@ class ISurfaceManager :
         static void Finalize(void);
 
         // Get a list of all surfaces.
-        virtual std::list<isurface_t> get_surfaces(void)=0;
+        virtual std::list<isurface_t>& get_surfaces(void)=0;
 
         ~ISurfaceManager() {};
     protected:

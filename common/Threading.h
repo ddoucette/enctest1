@@ -26,7 +26,9 @@ class ThreadPool : public std::enable_shared_from_this<ThreadPool>
     public:
         static thread_pool_t Create(uint32_t pool_size)
         {
-            return thread_pool_t(new ThreadPool(pool_size));
+            thread_pool_t tpool(new ThreadPool(pool_size));
+            tpool->initialize();
+            return tpool;
         }
 
         ~ThreadPool();
@@ -48,6 +50,9 @@ class ThreadPool : public std::enable_shared_from_this<ThreadPool>
     private:
         ThreadPool(uint32_t pool_size);
 
+        // initialize the pool
+        void initialize(void);
+
         // Notify the next waiting worker thread.
         void notify(void);
 
@@ -64,6 +69,9 @@ class ThreadPool : public std::enable_shared_from_this<ThreadPool>
 
         // Flag to indicate if the thread pool is still active.
         bool is_active;
+
+        // Number of threads in the pool
+        uint32_t pool_size;
 
         // Protects queues and state
         std::mutex lock;

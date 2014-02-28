@@ -15,14 +15,7 @@ void thread_func(thread_pool_t thread_pool)
 ThreadPool::ThreadPool(uint32_t pool_size)
 {
     this->is_active = true;
-    {
-        std::lock_guard<std::mutex> lck(this->lock);
-        for (uint32_t i = 0; i < pool_size; i++)
-        {
-            std::thread *worker = new std::thread(thread_func, this->shared_from_this());
-            threads.push_front(worker);
-        }
-    }
+    this->pool_size = pool_size;
 }
 
 ThreadPool::~ThreadPool()
@@ -48,6 +41,17 @@ ThreadPool::~ThreadPool()
         this->wait_queue.pop_front();
     while (!this->ready_queue.empty())
         this->ready_queue.pop_front();
+}
+
+void ThreadPool::initialize(void)
+{
+    std::lock_guard<std::mutex> lck(this->lock);
+    this->is_active = true;
+    for (uint32_t i = 0; i < this->pool_size; i++)
+    {
+        std::thread *worker = new std::thread(thread_func, this->shared_from_this());
+        threads.push_front(worker);
+    }
 }
 
 bool ThreadPool::schedule(thread_runnable_t task)
