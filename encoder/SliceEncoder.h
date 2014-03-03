@@ -9,6 +9,8 @@
 #include "Events.h"
 #include "ProtocolConnection.h"
 
+// SurfaceEncoder and SliceEncoder are circularly dependent.
+// We need to declare the surface encoder explicitly here.
 class SurfaceEncoder;
 typedef std::shared_ptr<SurfaceEncoder> surface_encoder_t;
 
@@ -42,6 +44,7 @@ class SliceEncoder : public Object,
         // Run the encoder
         virtual void run(void);
 
+        bool is_ready(void) { return true; }
     private:
         SliceEncoder(   std::string name,
                         surface_encoder_t surface_encoder,

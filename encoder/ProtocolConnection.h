@@ -4,11 +4,14 @@
 #include "DataReceiver.h"
 #include "ImageTile.h"
 #include "SecurityConfiguration.h"
+#include "EncoderManager.h"
 
 class ProtocolConnection;
 typedef std::shared_ptr<ProtocolConnection> protocol_connection_t;
 
-class ProtocolConnection : public Object
+class ProtocolConnection :
+                    public Object,
+                    public EventReceiver
 {
     public:
         static protocol_connection_t Create(std::string name)
@@ -18,7 +21,14 @@ class ProtocolConnection : public Object
 
         ~ProtocolConnection() {}
 
-        void set_cookie(cookie_t cookie) { this->cookie = cookie; }
+        // Received events
+        //   - EncoderManager -- DISCONNECT
+        void event_rcv(event_source_t esrc, event_t event)
+        {
+            mLOG_INFO("Received event (%d)", event);
+        }
+
+        void connect(cookie_t cookie) { this->cookie = cookie; }
         cookie_t get_cookie(void) { return this->cookie; }
 
         image_tile_receiver_t get_image_input_channel(void)

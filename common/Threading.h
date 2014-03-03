@@ -4,6 +4,7 @@
 #include <list>
 #include <thread>
 #include <condition_variable>
+#include "Time.h"
 
 class ThreadPool;
 typedef std::shared_ptr<ThreadPool> thread_pool_t;
@@ -17,7 +18,7 @@ class ThreadRunnable
     public:
         virtual void run(void)=0;
     protected:
-        uint64_t last_scheduled;
+        mtime_t last_scheduled;
         uint64_t usec_interval;
 };
 
@@ -59,7 +60,9 @@ class ThreadPool : public std::enable_shared_from_this<ThreadPool>
         // Notify all worker threads.
         void notify_all(void);
 
+        // Task query functions.
         bool task_is_queued(thread_runnable_t task);
+        bool task_is_wait_queued(thread_runnable_t task);
 
         // Scheduled threads
         std::list<thread_runnable_t>    ready_queue;

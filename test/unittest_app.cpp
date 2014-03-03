@@ -25,7 +25,6 @@ void test1(void)
 
     emgr->add_security_configuration(sec);
     protocol_connection_t prconn = ProtocolConnection::Create("client1");
-    prconn->set_cookie(12345678);
 
     isurface_t surface = smgr->get_surfaces().front();
 

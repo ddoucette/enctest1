@@ -1,8 +1,6 @@
 #pragma once
 #include "SecurityConfiguration.h"
-#include "ProtocolConnection.h"
 #include "ISurface.h"
-#include "SurfaceEncoder.h"
 #include "Threading.h"
 
 // The encoder manager is the top-level object for the core
@@ -13,30 +11,48 @@
 // The core encoder application provides a socket interface to connecting
 // clients to allow surfaces to be connected and transmitted.
 
+class SurfaceEncoder;
+typedef std::shared_ptr<SurfaceEncoder> surface_encoder_t;
+
+class ProtocolConnection;
+typedef std::shared_ptr<ProtocolConnection> protocol_connection_t;
+
 class SurfaceBinding;
 typedef std::shared_ptr<SurfaceBinding> surface_binding_t;
 
 class SurfaceBinding
 {
     public:
-        static surface_binding_t Create(isurface_t surface, protocol_connection_t prconn)
+        static surface_binding_t Create(isurface_t surface,
+                                        protocol_connection_t prconn,
+                                        security_configuration_t sec,
+                                        surface_encoder_t surf_enc)
         {
-            return surface_binding_t(new SurfaceBinding(surface, prconn));
+            return surface_binding_t(new SurfaceBinding(surface, prconn, sec, surf_enc));
         }
 
         isurface_t get_surface(void) { return surface; };
         protocol_connection_t get_protocol_connection(void) { return prconn; };
+        security_configuration_t get_security_configuration(void) { return sec; };
+        surface_encoder_t get_surface_encoder(void) { return surf_enc; };
 
         ~SurfaceBinding(){};
 
     private:
-        SurfaceBinding(isurface_t surface, protocol_connection_t prconn)
+        SurfaceBinding( isurface_t surface,
+                        protocol_connection_t prconn,
+                        security_configuration_t sec,
+                        surface_encoder_t surf_enc)
         {
             this->surface = surface;
             this->prconn = prconn;
+            this->sec = sec;
+            this->surf_enc = surf_enc;
         }
         isurface_t surface;
         protocol_connection_t prconn;
+        security_configuration_t sec;
+        surface_encoder_t surf_enc;
 };
 
 class EncoderManager;
@@ -48,6 +64,11 @@ class EncoderManager :
             public EventSource
 {
     public:
+        enum
+        {
+            EVENT_DISCONNECT
+        };
+
         // Singleton
         static encoder_manager_t GetInstance(void);
         static void Finalize(void);
